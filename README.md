@@ -2,7 +2,7 @@
 
 A CLI tool for logging daily project work and generating progress reports using a local LLM. Built for developers who need to report what they did, without the hassle of writing it up manually.
 
-Originally built for [PT. Universal Big Data](https://www.universbigdata.com) where daily progress reporting is part of the workflow, but useful for anyone who needs to track project work and generate reports.
+Originally built for [PT. Universal Big Data](https://ubig.co.id) where daily progress reporting is part of the workflow, but useful for anyone who needs to track project work and generate reports.
 
 ## Install
 
