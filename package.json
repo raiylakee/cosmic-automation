@@ -2,6 +2,7 @@
   "name": "cosmic-automation",
   "version": "1.0.0",
   "description": "Project journal + LLM-powered daily progress reports",
+  "license": "MIT",
   "type": "module",
   "bin": {
     "ct": "./dist/index.js"
