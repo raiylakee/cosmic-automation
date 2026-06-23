@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { searchEntries, projectExists } from "../storage.js";
+import { searchEntries, getProjectMeta, projectExists } from "../storage.js";
 import type { SearchFilter } from "../types.js";
 
 export function searchCommand(
@@ -11,6 +11,7 @@ export function searchCommand(
     process.exit(1);
   }
 
+  const meta = getProjectMeta(projectName);
   const results = searchEntries(projectName, filter);
 
   if (results.length === 0) {
@@ -18,7 +19,7 @@ export function searchCommand(
     return;
   }
 
-  console.log(chalk.bold(`\n  ${projectName} — ${results.length} result(s)\n`));
+  console.log(chalk.bold(`\n  ${meta.name} — ${results.length} result(s)\n`));
   let lastDate = "";
   for (const { date, entry } of results) {
     if (date !== lastDate) {

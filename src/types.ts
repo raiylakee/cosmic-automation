@@ -9,6 +9,11 @@ export interface JournalEntry {
   tags: string[];
 }
 
+export interface ProjectMeta {
+  name: string;
+  description?: string;
+}
+
 export interface SearchFilter {
   text?: string;
   tag?: string;

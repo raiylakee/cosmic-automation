@@ -9,7 +9,7 @@ import { reportCommand } from "./commands/report.js";
 import { searchCommand } from "./commands/search.js";
 import { exportCommand } from "./commands/export.js";
 import { statsCommand } from "./commands/stats.js";
-import { listProjects, getProjectDescription } from "./storage.js";
+import { listProjects } from "./storage.js";
 
 const program = new Command();
 
@@ -21,9 +21,10 @@ program
 program
   .command("init <project>")
   .description("Create a new project")
+  .option("-n, --name <name>", "Display name for the project")
   .option("-D, --description <desc>", "Project description")
-  .action((name: string, opts: { description?: string }) => {
-    initCommand(name, opts.description);
+  .action((name: string, opts: { name?: string; description?: string }) => {
+    initCommand(name, opts.name, opts.description);
   });
 
 program
@@ -80,14 +81,14 @@ program
   .action(() => {
     const projects = listProjects();
     if (projects.length === 0) {
-      console.log(chalk.dim("No projects yet. Run: cosmic init <project>"));
+      console.log(chalk.dim("No projects yet. Run: ct init <project>"));
       return;
     }
     console.log(chalk.bold("\n  Projects\n"));
-    for (const p of projects) {
-      const desc = getProjectDescription(p);
-      const label = desc ? chalk.dim(` — ${desc}`) : "";
-      console.log(`  ${chalk.cyan(p)}${label}`);
+    for (const { dirName, meta } of projects) {
+      const alias = dirName !== meta.name ? chalk.dim(` (${dirName})`) : "";
+      const desc = meta.description ? chalk.dim(` — ${meta.description}`) : "";
+      console.log(`  ${chalk.cyan(meta.name)}${alias}${desc}`);
     }
     console.log();
   });

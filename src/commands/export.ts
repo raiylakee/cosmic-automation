@@ -1,7 +1,6 @@
 import fs from "node:fs";
-import path from "node:path";
 import chalk from "chalk";
-import { exportToMarkdown, projectExists } from "../storage.js";
+import { exportToMarkdown, getProjectMeta, projectExists } from "../storage.js";
 
 export function exportCommand(projectName: string, outputPath?: string) {
   if (!projectExists(projectName)) {
@@ -9,9 +8,10 @@ export function exportCommand(projectName: string, outputPath?: string) {
     process.exit(1);
   }
 
+  const meta = getProjectMeta(projectName);
   const md = exportToMarkdown(projectName);
   const file = outputPath || `${projectName}-export.md`;
 
   fs.writeFileSync(file, md);
-  console.log(chalk.green(`Exported to ${file}`));
+  console.log(chalk.green(`Exported ${meta.name} to ${file}`));
 }

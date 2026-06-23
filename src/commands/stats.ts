@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { getStats, projectExists } from "../storage.js";
+import { getStats, getProjectMeta, projectExists } from "../storage.js";
 
 export function statsCommand(projectName: string) {
   if (!projectExists(projectName)) {
@@ -7,9 +7,10 @@ export function statsCommand(projectName: string) {
     process.exit(1);
   }
 
+  const meta = getProjectMeta(projectName);
   const stats = getStats(projectName);
 
-  console.log(chalk.bold(`\n  ${projectName} — Stats\n`));
+  console.log(chalk.bold(`\n  ${meta.name} — Stats\n`));
   console.log(`  Entries:       ${chalk.cyan(stats.totalEntries)}`);
   console.log(`  Days logged:   ${chalk.cyan(stats.totalDays)}`);
   console.log(`  Current streak: ${chalk.cyan(stats.currentStreak)} day(s)`);

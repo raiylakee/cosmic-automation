@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import chalk from "chalk";
-import { addEntry, projectExists, resolveDate } from "../storage.js";
+import { addEntry, getProjectMeta, projectExists, resolveDate } from "../storage.js";
 
 function openEditor(content: string): string | null {
   const editor = process.env.EDITOR || process.env.VISUAL || "vi";
@@ -23,9 +23,11 @@ function openEditor(content: string): string | null {
 
 export function logCommand(projectName: string, text: string | undefined, date?: string) {
   if (!projectExists(projectName)) {
-    console.log(chalk.red(`Project "${projectName}" not found. Run: cosmic init ${projectName}`));
+    console.log(chalk.red(`Project "${projectName}" not found. Run: ct init ${projectName}`));
     process.exit(1);
   }
+
+  const meta = getProjectMeta(projectName);
 
   let key: string;
   try {
@@ -37,7 +39,6 @@ export function logCommand(projectName: string, text: string | undefined, date?:
 
   let finalText = text;
 
-  // If no text provided, open $EDITOR
   if (!finalText) {
     const edited = openEditor("");
     if (!edited) {
@@ -47,11 +48,10 @@ export function logCommand(projectName: string, text: string | undefined, date?:
     finalText = edited;
   }
 
-  // Support multi-line: each line becomes a separate entry
   const lines = finalText.split("\n").filter((l) => l.trim());
   for (const line of lines) {
     const entry = addEntry(projectName, line, key);
-    console.log(chalk.green(`Logged to ${projectName} (${key})`));
+    console.log(chalk.green(`Logged to ${meta.name} (${key})`));
     console.log(chalk.dim(`  ${entry.time}  ${entry.text}`));
   }
 }

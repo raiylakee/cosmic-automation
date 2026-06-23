@@ -3,7 +3,7 @@ import path from "node:path";
 import os from "node:os";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek.js";
-import type { CosmicConfig, JournalEntry, SearchFilter } from "./types.js";
+import type { CosmicConfig, JournalEntry, ProjectMeta, SearchFilter } from "./types.js";
 
 dayjs.extend(isoWeek);
 
@@ -43,11 +43,32 @@ function projectFile(name: string): string {
   return path.join(projectDir(name), `${name}.txt`);
 }
 
+function metaFile(name: string): string {
+  return path.join(projectDir(name), "meta.json");
+}
+
+export function getProjectMeta(name: string): ProjectMeta {
+  const file = metaFile(name);
+  if (fs.existsSync(file)) {
+    try {
+      const data = JSON.parse(fs.readFileSync(file, "utf-8"));
+      return { name: data.name || name, description: data.description };
+    } catch {
+      return { name };
+    }
+  }
+  return { name };
+}
+
+export function saveProjectMeta(name: string, meta: ProjectMeta): void {
+  fs.writeFileSync(metaFile(name), JSON.stringify(meta, null, 2));
+}
+
 export function projectExists(name: string): boolean {
   return fs.existsSync(projectFile(name));
 }
 
-export function listProjects(): string[] {
+export function listProjects(): { dirName: string; meta: ProjectMeta }[] {
   ensureDir(PROJECTS_DIR);
   return fs
     .readdirSync(PROJECTS_DIR)
@@ -55,15 +76,17 @@ export function listProjects(): string[] {
       const full = path.join(PROJECTS_DIR, entry);
       return fs.statSync(full).isDirectory() && fs.existsSync(projectFile(entry));
     })
-    .sort();
+    .map((dirName) => ({ dirName, meta: getProjectMeta(dirName) }))
+    .sort((a, b) => a.dirName.localeCompare(b.dirName));
 }
 
-export function createProject(name: string, description?: string): void {
+export function createProject(name: string, displayName?: string, description?: string): void {
   ensureDir(projectDir(name));
   const file = projectFile(name);
   const descLine = description ? `# Description: ${description}\n` : "";
   const content = `# ${name}\n${descLine}# Created: ${dayjs().format("YYYY-MM-DD")}\n`;
   fs.writeFileSync(file, content);
+  saveProjectMeta(name, { name: displayName || name, description });
 }
 
 export function getProjectDescription(name: string): string | null {
@@ -278,9 +301,9 @@ export function getStats(project: string): ProjectStats {
 
 export function exportToMarkdown(project: string, dates?: string[]): string {
   const allDays = readAllEntries(project);
-  const desc = getProjectDescription(project);
-  let md = `# ${project}\n`;
-  if (desc) md += `> ${desc}\n`;
+  const meta = getProjectMeta(project);
+  let md = `# ${meta.name}\n`;
+  if (meta.description) md += `> ${meta.description}\n`;
   md += "\n";
 
   const days = dates

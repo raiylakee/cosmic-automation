@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { readEntries, readAllEntries, projectExists, resolveDate, getWeekDates } from "../storage.js";
+import { readEntries, readAllEntries, getProjectMeta, projectExists, resolveDate, getWeekDates } from "../storage.js";
 import { generateReport, generateWeeklyReport } from "../llm.js";
 
 export async function reportCommand(projectName: string, date?: string, week?: boolean) {
@@ -8,22 +8,23 @@ export async function reportCommand(projectName: string, date?: string, week?: b
     process.exit(1);
   }
 
+  const meta = getProjectMeta(projectName);
+
   if (week) {
-    // Weekly report: collect all entries from this week
     const weekDates = getWeekDates();
     const allDays = readAllEntries(projectName);
     const weekDays = allDays.filter((d) => weekDates.includes(d.date));
     const entries = weekDays.flatMap((d) => d.entries);
 
     if (entries.length === 0) {
-      console.log(chalk.dim(`No entries for ${projectName} this week. Nothing to report.`));
+      console.log(chalk.dim(`No entries for ${meta.name} this week. Nothing to report.`));
       return;
     }
 
     process.stdout.write(chalk.dim("Generating weekly report..."));
 
     try {
-      const report = await generateWeeklyReport(projectName, weekDates[0], weekDates[6], entries);
+      const report = await generateWeeklyReport(meta.name, weekDates[0], weekDates[6], entries);
       process.stdout.write("\r\x1b[K");
       console.log(report);
     } catch (err: any) {
@@ -35,7 +36,6 @@ export async function reportCommand(projectName: string, date?: string, week?: b
     return;
   }
 
-  // Daily report
   let key: string;
   try {
     key = resolveDate(date);
@@ -47,14 +47,14 @@ export async function reportCommand(projectName: string, date?: string, week?: b
   const entries = readEntries(projectName, key);
 
   if (entries.length === 0) {
-    console.log(chalk.dim(`No entries for ${projectName} on ${key}. Nothing to report.`));
+    console.log(chalk.dim(`No entries for ${meta.name} on ${key}. Nothing to report.`));
     return;
   }
 
   process.stdout.write(chalk.dim("Generating report..."));
 
   try {
-    const report = await generateReport(projectName, key, entries);
+    const report = await generateReport(meta.name, key, entries);
     process.stdout.write("\r\x1b[K");
     console.log(report);
   } catch (err: any) {
