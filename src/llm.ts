@@ -1,7 +1,6 @@
-import { loadConfig } from "./storage.js";
 import type { JournalEntry } from "./types.js";
 
-const DAILY_PROMPT = `You are a professional development journal writer. Given raw task entries from a developer's day, write a concise daily report.
+export const DAILY_PROMPT = `You are a professional development journal writer. Given raw task entries from a developer's day, write a concise daily report.
 
 Output format (use exactly this structure):
 
@@ -23,7 +22,7 @@ Rules:
 - Do NOT add a title or date header
 - Keep it under 150 words`;
 
-const WEEKLY_PROMPT = `You are a professional development journal writer. Given a week of raw task entries, write a concise weekly summary.
+export const WEEKLY_PROMPT = `You are a professional development journal writer. Given a week of raw task entries, write a concise weekly summary.
 
 Output format (use exactly this structure):
 
@@ -55,63 +54,21 @@ function formatEntries(entries: JournalEntry[]): string {
   }).join("\n");
 }
 
-export async function generateReport(
+export function buildDailyPrompt(
   project: string,
   date: string,
   entries: JournalEntry[]
-): Promise<string> {
-  const config = loadConfig();
-  const userPrompt = `Project: ${project}\nDate: ${date}\n\nEntries:\n${formatEntries(entries)}`;
-
-  const res = await fetch(`${config.ollamaUrl}/api/chat`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: config.ollamaModel,
-      messages: [
-        { role: "system", content: DAILY_PROMPT },
-        { role: "user", content: userPrompt },
-      ],
-      stream: false,
-    }),
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Ollama error (${res.status}): ${text}`);
-  }
-
-  const data = (await res.json()) as { message?: { content?: string } };
-  return data.message?.content?.trim() || "No report generated.";
+): string {
+  const userData = `Project: ${project}\nDate: ${date}\n\nEntries:\n${formatEntries(entries)}`;
+  return `--- System Prompt ---\n${DAILY_PROMPT}\n\n--- Your Data ---\n${userData}`;
 }
 
-export async function generateWeeklyReport(
+export function buildWeeklyPrompt(
   project: string,
   from: string,
   to: string,
   entries: JournalEntry[]
-): Promise<string> {
-  const config = loadConfig();
-  const userPrompt = `Project: ${project}\nWeek: ${from} to ${to}\n\nEntries:\n${formatEntries(entries)}`;
-
-  const res = await fetch(`${config.ollamaUrl}/api/chat`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: config.ollamaModel,
-      messages: [
-        { role: "system", content: WEEKLY_PROMPT },
-        { role: "user", content: userPrompt },
-      ],
-      stream: false,
-    }),
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Ollama error (${res.status}): ${text}`);
-  }
-
-  const data = (await res.json()) as { message?: { content?: string } };
-  return data.message?.content?.trim() || "No report generated.";
+): string {
+  const userData = `Project: ${project}\nWeek: ${from} to ${to}\n\nEntries:\n${formatEntries(entries)}`;
+  return `--- System Prompt ---\n${WEEKLY_PROMPT}\n\n--- Your Data ---\n${userData}`;
 }

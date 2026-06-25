@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import { readEntries, readAllEntries, getProjectMeta, projectExists, resolveDate, getWeekDates } from "../storage.js";
-import { generateReport, generateWeeklyReport } from "../llm.js";
+import { buildDailyPrompt, buildWeeklyPrompt } from "../llm.js";
 
 export async function reportCommand(projectName: string, date?: string, week?: boolean) {
   if (!projectExists(projectName)) {
@@ -21,18 +21,9 @@ export async function reportCommand(projectName: string, date?: string, week?: b
       return;
     }
 
-    process.stdout.write(chalk.dim("Generating weekly report..."));
-
-    try {
-      const report = await generateWeeklyReport(meta.name, weekDates[0], weekDates[6], entries);
-      process.stdout.write("\r\x1b[K");
-      console.log(report);
-    } catch (err: any) {
-      process.stdout.write("\r\x1b[K");
-      console.log(chalk.red(`Failed to generate report: ${err.message}`));
-      console.log(chalk.dim("Make sure Ollama is running: ollama serve"));
-      process.exit(1);
-    }
+    const prompt = buildWeeklyPrompt(meta.name, weekDates[0], weekDates[6], entries);
+    console.log(chalk.green("Copy the prompt below and paste it into your chatbot:\n"));
+    console.log(prompt);
     return;
   }
 
@@ -51,16 +42,7 @@ export async function reportCommand(projectName: string, date?: string, week?: b
     return;
   }
 
-  process.stdout.write(chalk.dim("Generating report..."));
-
-  try {
-    const report = await generateReport(meta.name, key, entries);
-    process.stdout.write("\r\x1b[K");
-    console.log(report);
-  } catch (err: any) {
-    process.stdout.write("\r\x1b[K");
-    console.log(chalk.red(`Failed to generate report: ${err.message}`));
-    console.log(chalk.dim("Make sure Ollama is running: ollama serve"));
-    process.exit(1);
-  }
+  const prompt = buildDailyPrompt(meta.name, key, entries);
+  console.log(chalk.green("Copy the prompt below and paste it into your chatbot:\n"));
+  console.log(prompt);
 }

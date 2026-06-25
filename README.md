@@ -1,6 +1,6 @@
 # ct
 
-A CLI tool for logging daily project work and generating progress reports using a local LLM. Built for developers who need to report what they did, without the hassle of writing it up manually.
+A CLI tool for logging daily project work and generating copyable report prompts. Log your tasks, then get a structured prompt you can paste into any chatbot (ChatGPT, Claude, etc.) to generate a polished progress report.
 
 Originally built for [PT. Universal Big Data](https://ubig.co.id) where daily progress reporting is part of the workflow, but useful for anyone who needs to track project work and generate reports.
 
@@ -10,7 +10,7 @@ Originally built for [PT. Universal Big Data](https://ubig.co.id) where daily pr
 npm install -g cosmic-automation
 ```
 
-Requires Node.js 18+. For LLM reports, you need [Ollama](https://ollama.com) running locally with a model pulled (e.g. `ollama pull llama3.1`).
+Requires Node.js 18+.
 
 ## Usage
 
@@ -28,7 +28,7 @@ ct report my-project
 | `ct init <project>` | Create a new project |
 | `ct log <project> [text]` | Add journal entry. Omit text to open `$EDITOR` |
 | `ct list <project>` | Show entries for today |
-| `ct report <project>` | Generate daily report with LLM |
+| `ct report <project>` | Get a copyable report prompt |
 | `ct search <project> [query]` | Search entries |
 | `ct export <project>` | Export to markdown |
 | `ct stats <project>` | Show stats |
@@ -93,33 +93,27 @@ All data lives in `~/.cosmic/projects/<name>/<name>.txt`. One file per project, 
 15:31	Built CLI task logger @feature @cli
 
 ## 2026-06-22
-10:00	Explored Ollama API @learning @llm
+10:00	Explored API integrations @learning
 ```
 
-## LLM Reports
+## Report Prompts
 
-Reports are generated via Ollama (local, free). The tool sends your entries to the LLM and returns a structured report:
+Run `ct report <project>` to get a ready-to-paste prompt with your entries. Copy it into any chatbot to get a structured report:
 
 ```
-**Completed:**
-- Built CLI task logger with Commander.js
-- Set up Ollama integration for local LLM
+--- System Prompt ---
+You are a professional development journal writer...
 
-**In Progress:**
-- Adding search functionality
+--- Your Data ---
+Project: my-app
+Date: 2026-06-23
 
-**Blockers:**
-- None
+Entries:
+15:31 - Set up Node.js project [setup, learning]
+15:31 - Built CLI task logger [feature, cli]
 ```
 
-Configure model and URL in `~/.cosmic/config.json`:
-
-```json
-{
-  "ollamaModel": "llama3.1",
-  "ollamaUrl": "http://localhost:11434"
-}
-```
+Paste this into ChatGPT, Claude, or any LLM and it will generate a clean daily or weekly report for you.
 
 ## License
 

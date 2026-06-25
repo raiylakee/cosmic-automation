@@ -1,7 +1,7 @@
 {
   "name": "cosmic-automation",
   "version": "1.0.0",
-  "description": "Project journal + LLM-powered daily progress reports",
+  "description": "Project journal + copyable progress report prompts",
   "license": "MIT",
   "type": "module",
   "bin": {

@@ -1,8 +1,3 @@
-export interface CosmicConfig {
-  ollamaModel: string;
-  ollamaUrl: string;
-}
-
 export interface JournalEntry {
   time: string;
   text: string;

@@ -3,34 +3,17 @@ import path from "node:path";
 import os from "node:os";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek.js";
-import type { CosmicConfig, JournalEntry, ProjectMeta, SearchFilter } from "./types.js";
+import type { JournalEntry, ProjectMeta, SearchFilter } from "./types.js";
 
 dayjs.extend(isoWeek);
 
 const COSMIC_DIR = path.join(os.homedir(), ".cosmic");
 const PROJECTS_DIR = path.join(COSMIC_DIR, "projects");
-const CONFIG_PATH = path.join(COSMIC_DIR, "config.json");
-
-const DEFAULT_CONFIG: CosmicConfig = {
-  ollamaModel: "llama3.1",
-  ollamaUrl: "http://localhost:11434",
-};
 
 function ensureDir(dir: string) {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
-}
-
-// --- Config ---
-
-export function loadConfig(): CosmicConfig {
-  ensureDir(COSMIC_DIR);
-  if (!fs.existsSync(CONFIG_PATH)) {
-    fs.writeFileSync(CONFIG_PATH, JSON.stringify(DEFAULT_CONFIG, null, 2));
-    return { ...DEFAULT_CONFIG };
-  }
-  return JSON.parse(fs.readFileSync(CONFIG_PATH, "utf-8"));
 }
 
 // --- Projects ---

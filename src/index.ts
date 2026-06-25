@@ -15,7 +15,7 @@ const program = new Command();
 
 program
   .name("ct")
-  .description("Project journal + LLM-powered daily progress reports")
+  .description("Project journal + progress report prompts")
   .version("1.0.0");
 
 program
@@ -45,7 +45,7 @@ program
 
 program
   .command("report <project>")
-  .description("Generate daily journal report with LLM")
+  .description("Get a copyable report prompt for your chatbot")
   .option("-d, --date <date>", "Date: YYYY-MM-DD, t (today), or p (yesterday)")
   .option("-w, --week", "Generate weekly report instead")
   .action(async (project: string, opts: { date?: string; week?: boolean }) => {
