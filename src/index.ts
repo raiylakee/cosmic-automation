@@ -48,8 +48,9 @@ program
   .description("Get a copyable report prompt for your chatbot")
   .option("-d, --date <date>", "Date: YYYY-MM-DD, t (today), or p (yesterday)")
   .option("-w, --week", "Generate weekly report instead")
-  .action(async (project: string, opts: { date?: string; week?: boolean }) => {
-    await reportCommand(project, opts.date, opts.week);
+  .option("--no-time", "Exclude timestamps from entries")
+  .action(async (project: string, opts: { date?: string; week?: boolean; time: boolean }) => {
+    await reportCommand(project, opts.date, opts.week, opts.time);
   });
 
 program

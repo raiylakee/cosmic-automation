@@ -2,7 +2,7 @@ import chalk from "chalk";
 import { readEntries, readAllEntries, getProjectMeta, projectExists, resolveDate, getWeekDates } from "../storage.js";
 import { buildDailyPrompt, buildWeeklyPrompt } from "../llm.js";
 
-export async function reportCommand(projectName: string, date?: string, week?: boolean) {
+export async function reportCommand(projectName: string, date?: string, week?: boolean, includeTime: boolean = true) {
   if (!projectExists(projectName)) {
     console.log(chalk.red(`Project "${projectName}" not found.`));
     process.exit(1);
@@ -21,7 +21,7 @@ export async function reportCommand(projectName: string, date?: string, week?: b
       return;
     }
 
-    const prompt = buildWeeklyPrompt(meta.name, weekDates[0], weekDates[6], entries);
+    const prompt = buildWeeklyPrompt(meta.name, weekDates[0], weekDates[6], entries, includeTime);
     console.log(chalk.green("Copy the prompt below and paste it into your chatbot:\n"));
     console.log(prompt);
     return;
@@ -42,7 +42,7 @@ export async function reportCommand(projectName: string, date?: string, week?: b
     return;
   }
 
-  const prompt = buildDailyPrompt(meta.name, key, entries);
+  const prompt = buildDailyPrompt(meta.name, key, entries, includeTime);
   console.log(chalk.green("Copy the prompt below and paste it into your chatbot:\n"));
   console.log(prompt);
 }

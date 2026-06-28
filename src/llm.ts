@@ -4,62 +4,66 @@ export const DAILY_PROMPT = `You are a professional development journal writer. 
 
 Output format (use exactly this structure):
 
-**Completed:**
-- [task summary]
+**Selesai:**
+- [ringkasan tugas]
 
-**In Progress:**
-- [task summary] (if any)
+**Sedang Dikerjakan:**
+- [ringkasan tugas] (jika ada)
 
-**Blockers:**
-- [blocker] (if any, otherwise write "None")
+**Hambatan:**
+- [hambatan] (jika ada, jika tidak tulis "Tidak ada")
 
 Rules:
-- Write in first person
-- Group related tasks together
-- Be concise, each bullet one line max
-- Focus on what was accomplished
-- Use plain text, no code blocks
-- Do NOT add a title or date header
-- Keep it under 150 words`;
+- Tulis dalam Bahasa Indonesia
+- Tulis dalam sudut pandang orang pertama
+- Kelompokkan tugas yang terkait
+- Singkat, setiap poin maksimal satu baris
+- Fokus pada apa yang telah diselesaikan
+- Gunakan teks biasa, tanpa code block
+- JANGAN tambahkan judul atau header tanggal
+- Maksimal 150 kata`;
 
 export const WEEKLY_PROMPT = `You are a professional development journal writer. Given a week of raw task entries, write a concise weekly summary.
 
 Output format (use exactly this structure):
 
-**Shipped / Completed:**
-- [achievement]
+**Tercapai / Selesai:**
+- [pencapaian]
 
-**Key Learnings:**
-- [learning] (if any)
+**Pelajaran Penting:**
+- [pelajaran] (jika ada)
 
-**Still In Progress:**
-- [item] (if any)
+**Masih Dikerjakan:**
+- [item] (jika ada)
 
-**Blockers / Notes:**
-- [item] (if any, otherwise write "None")
+**Hambatan / Catatan:**
+- [item] (jika ada, jika tidak tulis "Tidak ada")
 
 Rules:
-- Write in first person
-- Group related tasks by theme or project area
-- Be concise, each bullet one line max
-- Highlight biggest accomplishments first
-- Use plain text, no code blocks
-- Do NOT add a title or date header
-- Keep it under 250 words`;
+- Tulis dalam Bahasa Indonesia
+- Tulis dalam sudut pandang orang pertama
+- Kelompokkan tugas berdasarkan tema atau area proyek
+- Singkat, setiap poin maksimal satu baris
+- Utamakan pencapaian terbesar di atas
+- Gunakan teks biasa, tanpa code block
+- JANGAN tambahkan judul atau header tanggal
+- Maksimal 250 kata`;
 
-function formatEntries(entries: JournalEntry[]): string {
+function formatEntries(entries: JournalEntry[], includeTime: boolean): string {
   return entries.map((e) => {
     const tags = e.tags.length > 0 ? ` [${e.tags.join(", ")}]` : "";
-    return `${e.time} - ${e.text}${tags}`;
+    const prefix = includeTime ? `${e.time} - ` : "";
+    return `${prefix}${e.text}${tags}`;
   }).join("\n");
 }
 
 export function buildDailyPrompt(
   project: string,
   date: string,
-  entries: JournalEntry[]
+  entries: JournalEntry[],
+  includeTime: boolean
 ): string {
-  const userData = `Project: ${project}\nDate: ${date}\n\nEntries:\n${formatEntries(entries)}`;
+  const userData = `Project: ${project}\nDate: ${date}\n\nEntries:\n${formatEntries(entries, includeTime)}`;
   return `--- System Prompt ---\n${DAILY_PROMPT}\n\n--- Your Data ---\n${userData}`;
 }
 
@@ -67,8 +71,9 @@ export function buildWeeklyPrompt(
   project: string,
   from: string,
   to: string,
-  entries: JournalEntry[]
+  entries: JournalEntry[],
+  includeTime: boolean
 ): string {
-  const userData = `Project: ${project}\nWeek: ${from} to ${to}\n\nEntries:\n${formatEntries(entries)}`;
+  const userData = `Project: ${project}\nWeek: ${from} to ${to}\n\nEntries:\n${formatEntries(entries, includeTime)}`;
   return `--- System Prompt ---\n${WEEKLY_PROMPT}\n\n--- Your Data ---\n${userData}`;
 }
